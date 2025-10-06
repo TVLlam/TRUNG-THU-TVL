@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Tỏa sáng mùa trăng — Trần Văn Lâm ✨</title>
+  <meta name="description" content="Landing page Trung Thu lung linh của Trần Văn Lâm — TikTok @lamtran1408" />
+  <style>
+    :root{
+      --bg1:#07021a;
+      --bg2:#0b1532;
+      --accent1:#ffd56b;
+      --accent2:#ff7ab6;
+      --accent3:#8b5cf6;
+      --glass: rgba(255,255,255,0.06);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:Inter, Poppins, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: radial-gradient(circle at 20% 10%, rgba(255,230,180,0.03), transparent 8%),
+                  linear-gradient(180deg, var(--bg1) 0%, var(--bg2) 60%);
+      color:#fff;
+      overflow:hidden;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+
+    /* Full canvas layers */
+    .sky { position:fixed; inset:0; z-index:0; pointer-events:none;}
+    canvas#fireworks { position:absolute; inset:0; width:100%; height:100%; display:block; }
+    .stars { position:absolute; inset:0; z-index:1; pointer-events:none; }
+    .moon-wrap { position:absolute; right:6vw; top:6vh; z-index:6; pointer-events:none; }
+
+    /* Moon */
+    .moon {
+      width:160px; height:160px; border-radius:50%;
+      background: radial-gradient(circle at 30% 30%, #fff9e6, #fff0b5 30%, #f6d27a 48%, #d4b86b 70%);
+      box-shadow:0 0 120px rgba(255,220,140,0.28), inset -8px -6px 24px rgba(0,0,0,0.06);
+      transform:translateZ(0);
+      filter:drop-shadow(0 20px 40px rgba(0,0,0,0.4));
+      animation:moonGlow 3s ease-in-out infinite alternate;
+    }
+    @keyframes moonGlow{from{transform:scale(0.995)} to{transform:scale(1.01)}}
+
+    /* Center card (avatar + slogan) */
+    .center{
+      position:absolute;
+      left:50%; top:50%;
+      transform:translate(-50%,-50%);
+      z-index:8;
+      text-align:center;
+      width:min(920px,92vw);
+      pointer-events:auto;
+    }
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+      border-radius:22px;
+      padding:26px;
+      box-shadow: 0 8px 40px rgba(2,6,23,0.6), inset 0 1px 0 rgba(255,255,255,0.02);
+      border:1px solid rgba(255,255,255,0.04);
+      backdrop-filter: blur(6px) saturate(120%);
+      display:flex;
+      gap:20px;
+      align-items:center;
+      justify-content:center;
+      flex-wrap:wrap;
+    }
+
+    .avatar {
+      width:120px; height:120px; border-radius:50%;
+      overflow:hidden; flex:0 0 120px;
+      border:4px solid rgba(255,255,255,0.08);
+      box-shadow:0 10px 30px rgba(255,150,120,0.08);
+      background:linear-gradient(180deg,#fff,#ffe);
+      position:relative;
+    }
+    .avatar img{width:100%; height:100%; object-fit:cover; display:block; filter:contrast(1.02) saturate(1.05);}
+
+    .brand {
+      text-align:left;
+      min-width:260px;
+    }
+    .brand h2{
+      font-size:1.6rem; margin:0 0 6px 0;
+      background: linear-gradient(90deg,var(--accent1), var(--accent2), var(--accent3));
+      -webkit-background-clip:text; color:transparent;
+      letter-spacing:0.6px;
+    }
+    .brand p{
+      margin:0; color:rgba(255,255,255,0.85); font-size:0.98rem;
+    }
+    .slogan{
+      margin-top:8px;
+      font-weight:700;
+      font-size:1.05rem;
+      color: #fff;
+      text-shadow:0 6px 22px rgba(255,140,180,0.08);
+    }
+
+    .cta {
+      display:flex; gap:12px; align-items:center; margin-left:8px;
+    }
+    .btn {
+      padding:10px 16px; border-radius:999px; font-weight:600; text-decoration:none;
+      color:#071021; background:linear-gradient(90deg,#fff7b2,#ffd0d9); border: 1px solid rgba(255,255,255,0.08);
+      box-shadow:0 8px 24px rgba(255,120,160,0.12);
+      transform:translateZ(0);
+    }
+    .btn.secondary{
+      background:transparent; color:#fff; border:1px solid rgba(255,255,255,0.06);
+      box-shadow:none;
+    }
+
+    /* Big headline overlay */
+    .headline {
+      position:absolute; top:14vh; left:6vw; z-index:7;
+      font-size: clamp(20px, 3.6vw, 36px);
+      font-weight:800;
+      letter-spacing: 0.6px;
+      width:min(640px,66vw);
+      line-height:1.02;
+      background: linear-gradient(90deg,#ffd56b,#ff8fa3,#c4a3ff);
+      -webkit-background-clip:text; color:transparent;
+      text-shadow: 0 10px 40px rgba(0,0,0,0.6);
+    }
+
+    /* Lanterns container (absolute full) */
+    .lanterns { position:fixed; inset:0; z-index:5; pointer-events:none; }
+
+    .lantern {
+      position:absolute;
+      width:160px; height:210px;
+      border-radius:18px;
+      display:flex; align-items:center; justify-content:center;
+      color:#3b1200; font-weight:700; text-align:center;
+      font-size:16px; padding:10px; box-shadow:0 18px 60px rgba(255,120,120,0.12);
+      transform-origin:center bottom;
+      will-change: transform, opacity;
+      opacity:0;
+    }
+    .lantern .rope{
+      position:absolute; bottom:-18px; left:50%; transform:translateX(-50%);
+      width:8px; height:36px; border-radius:4px; background:rgba(20,10,8,0.8);
+      box-shadow:0 8px 20px rgba(0,0,0,0.6);
+    }
+
+    /* different color styles for lanterns */
+    .lantern.red { background: linear-gradient(180deg,#ff7a7a,#ffb3b3); color:#2f0606; }
+    .lantern.gold { background: linear-gradient(180deg,#fff0b8,#ffd56b); color:#5a2d00; }
+    .lantern.pink { background: linear-gradient(180deg,#ffb3e0,#ff7ab6); color:#3b0022; }
+    .lantern.orange { background: linear-gradient(180deg,#ffd09a,#ff8c4b); color:#351400; }
+
+    /* Float animation (duration randomized in JS) */
+    @keyframes floatAndSway {
+      0% { transform: translateY(0) translateX(0) rotate(-6deg); opacity:0 }
+      10% { opacity:1 }
+      50% { transform: translateY(-52vh) translateX(12vw) rotate(6deg); }
+      100% { transform: translateY(-110vh) translateX(18vw) rotate(-8deg); opacity:0.06 }
+    }
+
+    /* fireworks indicator at top */
+    .firework-icon{
+      position:fixed; right:20px; bottom:20px; z-index:9; background:var(--glass); padding:10px 12px; border-radius:999px; border:1px solid rgba(255,255,255,0.04);
+      backdrop-filter: blur(6px);
+      cursor:pointer;
+    }
+
+    /* wishes popup style (hidden, on small screens we reduce size) */
+    .wish-overlay {
+      position:fixed; left:50%; transform:translateX(-50%); bottom:8vh; z-index:12;
+      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+      border-radius:12px; padding:12px 18px; display:flex; gap:12px; align-items:center;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.45); border:1px solid rgba(255,255,255,0.04);
+      max-width:920px;
+    }
+    .wish-overlay .wish-text { font-weight:700; color:#fff; font-size:1.05rem; letter-spacing:0.3px; }
+    .wish-overlay .small { font-size:0.85rem; color:rgba(255,255,255,0.78); }
+
+    /* responsive tweaks */
+    @media (max-width:720px){
+      .card{ padding:18px; gap:12px; }
+      .avatar{ width:96px; height:96px; }
+      .brand h2{ font-size:1.1rem; }
+      .lantern { width:110px; height:150px; font-size:14px; border-radius:12px; }
+      .headline{ left:6vw; right:6vw; top:10vh; font-size:clamp(18px,6.6vw,28px)}
+      .moon { width:110px; height:110px; }
+      .wish-overlay{ bottom:4vh; padding:10px 14px; font-size:0.95rem;}
+    }
+
+    /* small glowing particles (foreground) */
+    .glow {
+      position:fixed; left:50%; bottom:6vh; transform:translateX(-50%); width:40%; height:100px; filter: blur(32px); opacity:0.08; z-index:4;
+      background: radial-gradient(ellipse at center, rgba(255,200,120,0.9), rgba(255,120,180,0.3) 40%, transparent 60%);
+      border-radius:999px;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- SKY / EFFECTS -->
+  <div class="sky" aria-hidden="true">
+    <canvas id="fireworks"></canvas>
+    <div class="stars" id="stars"></div>
+    <div class="moon-wrap"><div class="moon" aria-hidden="true"></div></div>
+    <div class="glow" aria-hidden="true"></div>
+  </div>
+
+  <!-- HEADLINE -->
+  <div class="headline">Tỏa sáng mùa trăng — kết nối năng lượng tích cực trên TikTok</div>
+
+  <!-- CENTER CARD -->
+  <main class="center" role="main" aria-labelledby="main-title">
+    <section class="card" id="profile-card">
+      <div class="avatar" title="Ảnh đại diện">
+        <!-- THAY LINK ẢNH Ở DÒNG SAU: --> 
+        <img id="avatar-img" src="z6117595540025_824d2876658b902329c4482f7a2550ac.jpg" alt="Ảnh đại diện Trần Văn Lâm">
+      </div>
+
+      <div class="brand">
+        <h2 id="main-title">Trần Văn Lâm <span style="font-weight:600; font-size:0.85rem; color:rgba(255,255,255,0.85)">(@lamtran1408)</span></h2>
+        <p>Chia sẻ năng lượng tích cực, sáng tạo & vui nhộn.</p>
+        <div class="slogan">Tỏa sáng mùa trăng cùng Trần Văn Lâm ✨</div>
+
+        <div style="margin-top:12px; display:flex; gap:10px; align-items:center;">
+          <a class="btn" href="https://www.tiktok.com/@lamtran1408" target="_blank" rel="noopener">Theo dõi TikTok</a>
+          <a class="btn secondary" href="#" onclick="shareProfile(); return false;">Chia sẻ</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- LANTERNS LAYER -->
+  <div class="lanterns" id="lanterns"></div>
+
+  <!-- WISH BAR -->
+  <div class="wish-overlay" id="wishOverlay" role="status" aria-live="polite">
+    <div class="wish-text" id="wishText">Chúc Trung Thu vui vẻ!</div>
+  </div>
+
+  <!-- Controls -->
+ <button class="firework-icon" id="musicToggle" title="Bật / Tắt nhạc" aria-pressed="false"
+style="background:linear-gradient(45deg,#ffcc00,#ff9900);color:#fff;font-weight:bold;border:2px solid #ffd700;padding:8px 14px;border-radius:25px;box-shadow:0 0 8px rgba(255,200,0,0.7);">
+🎵 Nhạc
+</button>
+
+<button class="firework-icon" id="fireToggle" title="Bật / Tắt pháo hoa" style="right:86px;
+background:linear-gradient(45deg,#ff6699,#ff3300);color:#fff;font-weight:bold;border:2px solid #ff99cc;padding:8px 14px;border-radius:25px;box-shadow:0 0 8px rgba(255,150,150,0.7);">
+🎆 Pháo hoa
+</button>
+
+  <!-- AUDIO (thay link nếu muốn) -->
+  <audio id="bgMusic" loop preload="auto">
+    <!-- Link nhạc mẫu miễn phí: thay đổi nếu cần -->
+    <source src="NhacTrung Thu Cưc Hay 2025 - Nhac Trung Thu Không Lơi.mp3" type="audio/mpeg">
+  </audio>
+
+  <script>
+    /* ========= Cấu hình nhanh ========= */
+    const wishes = [
+      "Chúc Trung Thu vui vẻ!",
+      "An lành – May mắn – Hạnh phúc 🌙",
+      "Tỏa sáng như trăng rằm ✨",
+      "Luôn cười thật tươi nha 😄",
+      "Gia đình đầm ấm, sum vầy ❤️",
+      "Mọi điều tốt đẹp đến với bạn!",
+      "Sáng tạo không ngừng — Đạt 1K followers! 🚀",
+      "Trăng tròn, tim trọn niềm vui!"
+    ];
+
+    const lanternColors = ['red','gold','pink','orange'];
+
+    /* ============ Stars ============ */
+    const starsEl = document.getElementById('stars');
+    for(let i=0;i<120;i++){
+      const s = document.createElement('div');
+      s.className='star';
+      const size = Math.random()*2 + 1;
+      s.style.width = size+'px';
+      s.style.height = size+'px';
+      s.style.left = (Math.random()*100)+'vw';
+      s.style.top = (Math.random()*55)+'vh';
+      s.style.opacity = (Math.random()*0.6 + 0.2);
+      s.style.animation = `twinkle ${2+Math.random()*3}s infinite ease-in-out`;
+      s.style.borderRadius='50%';
+      s.style.background = 'white';
+      starsEl.appendChild(s);
+    }
+
+    /* ============ Lanterns ============ */
+    const lanternsRoot = document.getElementById('lanterns');
+
+    function spawnLantern(i){
+      const el = document.createElement('div');
+      const color = lanternColors[Math.floor(Math.random()*lanternColors.length)];
+      el.className = 'lantern ' + color;
+      // pick random wish and make text big
+      const wish = wishes[Math.floor(Math.random()*wishes.length)];
+      el.innerHTML = `<div style="padding:8px; font-size:18px; line-height:1.05;">${wish}</div><div class="rope"></div>`;
+      // random start left
+      const left = Math.random()*75 + 5; // 5% to 80%
+      el.style.left = left + 'vw';
+      // random width/height scale
+      const scale = 0.9 + Math.random()*0.8;
+      el.style.width = (160*scale) + 'px';
+      el.style.height = (210*scale) + 'px';
+      // random animation duration and delay
+      const dur = 18 + Math.random()*28; // 18s - 46s
+      const delay = Math.random()*8;
+      el.style.animation = `floatAndSway ${dur}s linear ${delay}s forwards`;
+      el.style.opacity = 0;
+      // slight rotation variance via transform
+      el.style.transform = `translateY(0) rotate(${(Math.random()*20-10)}deg)`;
+      lanternsRoot.appendChild(el);
+
+      // when appear, set overlay wish text to this wish (for a short while)
+      setTimeout(()=> {
+        showWish(wish);
+      }, delay*1000 + 600);
+
+      // remove element after animation (dur + delay)
+      setTimeout(()=> {
+        try{ el.remove(); }catch(e){}
+        // respawn another lantern to keep effect perpetual
+        setTimeout(()=> spawnLantern(i+1), 1500 + Math.random()*2400);
+      }, (dur+delay+1)*1000);
+    }
+
+    // spawn initial lanterns (bigger and more)
+    for(let i=0;i<8;i++){
+      setTimeout(()=> spawnLantern(i), i*700);
+    }
+
+    /* =========== Wish overlay =========== */
+    const wishOverlay = document.getElementById('wishOverlay');
+    const wishText = document.getElementById('wishText');
+    function showWish(text){
+      wishText.textContent = text;
+      wishOverlay.style.transform = 'translateX(-50%) translateY(6px)';
+      wishOverlay.style.opacity = 1;
+      wishOverlay.style.transition = 'transform 0.6s ease, opacity 0.6s ease';
+      // auto hide after 6s
+      clearTimeout(window._wishHide);
+      window._wishHide = setTimeout(()=>{
+        wishOverlay.style.transform = 'translateX(-50%) translateY(24px)';
+        wishOverlay.style.opacity = 0.0;
+      }, 6000);
+    }
+
+    /* =========== Fireworks (canvas) =========== */
+    const canvas = document.getElementById('fireworks');
+    const ctx = canvas.getContext('2d');
+    function resizeCanvas(){ canvas.width = innerWidth; canvas.height = innerHeight; }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    const fireworks = [];
+    function random(min,max){ return Math.random()*(max-min)+min; }
+
+    function spawnFirework(){
+      const x = random(innerWidth*0.15, innerWidth*0.85);
+      const y = random(innerHeight*0.06, innerHeight*0.45);
+      const hue = Math.floor(random(0, 360));
+      const particles = [];
+      const count = 60 + Math.floor(Math.random()*40);
+      for(let i=0;i<count;i++){
+        const angle = Math.random()*Math.PI*2;
+        const speed = random(1.5,6);
+        particles.push({
+          x,y,
+          vx: Math.cos(angle)*speed,
+          vy: Math.sin(angle)*speed,
+          life: 60 + Math.random()*40,
+          hue: hue + Math.random()*40 - 20
+        });
+      }
+      fireworks.push({particles});
+      // auto remove later (particles handle it)
+    }
+
+    // draw loop
+    function animate(){
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      // slight tint for trails
+      ctx.fillStyle = 'rgba(2,4,10,0.22)';
+      ctx.fillRect(0,0,canvas.width,canvas.height);
+
+      for(let i = fireworks.length-1; i>=0;i--){
+        const fw = fireworks[i];
+        for(let p of fw.particles){
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.04; // gravity
+          p.vx *= 0.995;
+          p.vy *= 0.998;
+          p.life -= 1;
+          const alpha = Math.max(0, p.life/90);
+          ctx.beginPath();
+          ctx.fillStyle = `hsla(${p.hue}, 100%, 60%, ${alpha})`;
+          ctx.arc(p.x, p.y, Math.max(0.6, p.life/18), 0, Math.PI*2);
+          ctx.fill();
+        }
+        // remove finished
+        if(fw.particles.every(p=>p.life<=0)) fireworks.splice(i,1);
+      }
+      requestAnimationFrame(animate);
+    }
+    animate();
+
+    // spawn occasional fireworks
+    let fireworksEnabled = true;
+    setInterval(()=> {
+      if(fireworksEnabled && Math.random()<0.65) spawnFirework();
+    }, 1100 + Math.random()*1500);
+
+    /* =========== Music control & interactions =========== */
+    const music = document.getElementById('bgMusic');
+    const musicBtn = document.getElementById('musicToggle');
+    // Try to autoplay quietly (many browsers block), catch errors
+    (async ()=>{
+      try{ await music.play(); music.pause(); }catch(e){}
+    })();
+
+    musicBtn.addEventListener('click', ()=>{
+      if(music.paused){
+        music.play().catch(()=>{ alert('Trình duyệt chặn autoplay; hãy cho phép hoặc nhấn lại nút.'); });
+        musicBtn.textContent = '🔊 Nhạc: Bật';
+        musicBtn.setAttribute('aria-pressed','true');
+      } else {
+        music.pause();
+        musicBtn.textContent = '🎵 Nhạc';
+        musicBtn.setAttribute('aria-pressed','false');
+      }
+    });
+
+    /* =========== Fireworks toggle =========== */
+    const fireToggle = document.getElementById('fireToggle');
+    fireToggle.addEventListener('click', ()=>{
+      fireworksEnabled = !fireworksEnabled;
+      fireToggle.textContent = fireworksEnabled ? '🎆 Pháo hoa' : '⚪ Pháo hoa tắt';
+    });
+
+    /* =========== Share / copy link =========== */
+    function shareProfile(){
+      const url = location.href;
+      if(navigator.share){
+        navigator.share({ title: 'Trần Văn Lâm — Trung Thu', text: 'Tỏa sáng mùa trăng cùng @lamtran1408', url }).catch(()=>{});
+      } else {
+        navigator.clipboard.writeText(url).then(()=> {
+          alert('Đã sao chép link trang! Bạn có thể dán vào TikTok bio hoặc gửi cho bạn bè.');
+        });
+      }
+    }
+
+    /* =========== Accessibility: keyboard to toggle music (M) =========== */
+    window.addEventListener('keydown', (e)=> {
+      if(e.key.toLowerCase()==='m') musicBtn.click();
+      if(e.key.toLowerCase()==='f') fireToggle.click();
+    });
+
+    /* =========== Hint: Replace avatar & music ===========
+       - Thay src của #avatar-img để cập nhật ảnh đại diện.
+       - Thay <source> trong <audio id="bgMusic"> để đổi nhạc nền.
+       - Bạn có thể điều chỉnh số đèn lồng: vòng for ban đầu spawnLantern( i ) — hiện spawn 8.
+    ================================================ */
+
+  </script>
+</body>
+</html>
